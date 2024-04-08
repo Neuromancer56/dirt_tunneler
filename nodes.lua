@@ -72,3 +72,31 @@ end
 
 registerNodeTouchAction("default:dirt", dirtTouchAction)
 registerNodeTouchAction("default:dry_dirt", dirtTouchAction)
+
+local function isSneakPressed(player)
+	local controls = player:get_player_control()
+	if controls.sneak then
+		return true
+	else
+		return false
+	end 
+end
+
+-- Register an event handler to check for shift key presses
+minetest.register_globalstep(function(dtime)
+    for _, player in ipairs(minetest.get_connected_players()) do
+        if isSneakPressed(player) then
+            -- Shift key is pressed
+            --minetest.log("x", "Shift key is pressed!")
+			local pos = player:get_pos()
+			local below_pos = {x = pos.x, y = pos.y -1, z = pos.z}
+			local node = minetest.get_node(below_pos)
+			if (node.name == "default:dry_dirt" or node.name == "default:dirt") then
+				minetest.swap_node(below_pos, {name = "default:ladder", param2 = 4})
+			end
+        else
+            -- Shift key is not pressed
+           -- minetest.chat_send_player(player:get_player_name(), "Shift key is not pressed.")
+        end
+    end
+end)
